@@ -5,12 +5,13 @@ import imutils
 
 #def move_bot():
 #	
- 
+cap = cv2.VideoCapture(1)
+
 while(1):
-	cap = cv2.VideoCapture(1)
+	
 	ret, frame = cap.read()
 	gray_vid = cv2.cvtColor(frame, cv2.IMREAD_GRAYSCALE)
-	edged_frame = cv2.Canny(gray_vid,150,200,5)
+	edged_frame = cv2.Canny(gray_vid, 150, 200, 5)
 	_, threshold = cv2.threshold(edged_frame, 150, 200, 0)
 	im2, contours, hierarchy = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 	
@@ -30,10 +31,13 @@ while(1):
     #Testing finding triangles:
 	#triangles = find_triangles(edged_frame)
 	
-	cv2.imshow('Edges',edged_frame)
+	cv2.imshow('Contours and edges',edged_frame)
 	cv2.imshow('Original',frame)
-	k= cv2.waitKey(5)
+	
+	k = cv2.waitKey(5)
 	if k==27:
 		break
+
+
 cap.release()
 cv2.destroyAllWindows()
