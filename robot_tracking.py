@@ -3,8 +3,7 @@ import numpy as np
 import argparse
 import imutils
 
-#def move_bot():
-#	
+
 cap = cv2.VideoCapture(1)
 
 while(1):
