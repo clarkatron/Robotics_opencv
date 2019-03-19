@@ -7,22 +7,31 @@ import imutils
 cap = cv2.VideoCapture(1)
 
 while(1):
-	
+	cap = cv2.VideoCapture(1)
 	ret, frame = cap.read()
 	gray_vid = cv2.cvtColor(frame, cv2.IMREAD_GRAYSCALE)
-	edged_frame = cv2.Canny(gray_vid, 150, 200, 5)
+	kernel = np.ones((6,6), np.uint8)
+
+	nois_reduce = cv2.morphologyEx(gray_vid, cv2.MORPH_OPEN, kernel)
+	#cv2.imshow('stuff',nois_reduce)
+
+	edged_frame = cv2.Canny(nois_reduce, 150, 200, 5)
+	#cv2.imshow('edges', edged_frame)
 	_, threshold = cv2.threshold(edged_frame, 150, 200, 0)
 	im2, contours, hierarchy = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+	
 	
 	for cnt in contours:
 		approx = cv2.approxPolyDP(cnt, 0.07*cv2.arcLength(cnt, True), True)
 		M = cv2.moments(cnt)
+		
 		if M["m00"] != 0:
 			cX = int(M["m10"] / M["m00"])
 			cY = int(M["m01"] / M["m00"])
 			if len(approx) == 3:
-				cv2.drawContours(edged_frame, [cnt], 0, (255), 5)
-				cv2.circle(edged_frame, (cX, cY), 5, (255), -1)
+				#cv2.drawContours(nois_reduce, [cnt], 0, (255), 5)
+				cv2.circle(nois_reduce, (cX, cY), 5, (255), -1)
+				#print(str(cX) + ',' + str(cY))
 		else:
 			cX, cY = 0, 0
 	
@@ -30,8 +39,8 @@ while(1):
     #Testing finding triangles:
 	#triangles = find_triangles(edged_frame)
 	
-	cv2.imshow('Contours and edges',edged_frame)
 	cv2.imshow('Original',frame)
+	cv2.imshow('Contours and edges',nois_reduce)
 	
 	k = cv2.waitKey(5)
 	if k==27:
