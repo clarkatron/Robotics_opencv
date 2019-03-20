@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import argparse
 import imutils
+import socket
 
 not_using_opencv = True
 
@@ -65,7 +66,16 @@ Class Robot_Track:
 		send_message(name, ip, angle, distance)
 	
 	def send_message(name, ip, angle, distance):
-		#message should take the format of (degrees,distance)
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+                server_address = (ip, 65432)
+                sock.connect(server_address)
+
+                message = "{0},{1}".format(angle, distance)
+                sock.sendall(message.encode('ascii'))
+
+                data = sock.recv(3)
+                sock.close()
 		
 	def connect_robot(name, ip):
 		#connect
