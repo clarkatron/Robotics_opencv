@@ -9,7 +9,6 @@ board_layout = {}
 
 
 while(1):
-	cap = cv2.VideoCapture(1)
 	ret, frame = cap.read()
 	gray_vid = cv2.cvtColor(frame, cv2.IMREAD_GRAYSCALE)
 	kernel = np.ones((6,6), np.uint8)
@@ -24,19 +23,19 @@ while(1):
 	
 	
 	for cnt in contours:
-		approx = cv2.approxPolyDP(cnt, 0.07*cv2.arcLength(cnt, True), True)
+		approx = cv2.approxPolyDP(cnt, 0.04*cv2.arcLength(cnt, True), True)
 		M = cv2.moments(cnt)
-		
+		print(cnt)
 		if M["m00"] != 0:
 			cX = int(M["m10"] / M["m00"])
 			cY = int(M["m01"] / M["m00"])
 			
-			if len(approx) == 3:
-				if cnt == 0:
-					board_layout[cnt] = (cX, cY)
-				else:
-					if abs((board_layout[cnt-1][0] - cX) + (board_layout[cnt-1][1] - cY)) > 10:
-						board_layout[cnt] = (cX, cY)
+			if len(approx) != 3 & len(approx) != 4 & len(approx) != 5:
+				#if cnt == 0:
+					#board_layout[cnt] = (cX, cY)
+				#else:
+					#if abs((board_layout[cnt-1][0] - cX) + (board_layout[cnt-1][1] - cY)) > 10:
+						#board_layout[cnt] = (cX, cY)
 						
 				#cv2.drawContours(nois_reduce, [cnt], 0, (255), 5)
 				cv2.circle(nois_reduce, (cX, cY), 5, (255), -1)
