@@ -3,6 +3,7 @@ import numpy as np
 import argparse
 import imutils
 
+not_using_opencv = True
 
 Class Robot_Track:
 	cap = cv2.VideoCapture(1)
@@ -50,14 +51,17 @@ Class Robot_Track:
 		#get contours for robot
 		robot = name
 		#return row and column of robot
-		
+	
 	def move_robot(name, ip, row, col):
+                if(not_using_opencv):
+                    
+                    return
 		is_connected = connect_robot(name, ip)
 		if is_connected:
 			r1_row, r1_column =  get_location(name)
 		#get contour and centroid for dest
 		#calculate angle and distance for robot move
-		
+                	
 		send_message(name, ip, angle, distance)
 	
 	def send_message(name, ip, angle, distance):
