@@ -87,6 +87,16 @@ cv.createTrackbar(low_V_name, window_detection_name , low_V, max_value, on_low_V
 cv.createTrackbar(high_V_name, window_detection_name , high_V, max_value, on_high_V_thresh_trackbar)
 ## [trackbar]
 
+# get mouse click point
+def draw_circle(event, x, y, flags, param):
+	global mousex, mousey
+	if event == cv.EVENT_LBUTTONDOWN:
+		cv.circle(img, (x, y), 100, (255, 0, 0), -1)
+		mousex, mousey = x,y
+	print("X: " + str(x) + " Y: " + str(y))
+
+cv.setMouseCallback(window_capture_name, draw_circle)
+
 while True:
 	## [while]
 	ret, frame = cap.read()
