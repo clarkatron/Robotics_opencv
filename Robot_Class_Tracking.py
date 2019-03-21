@@ -31,7 +31,7 @@ class Robot_Track(object):
 
         robots = {'p1_l':[50,70,100], 'p1_u':[100,255,255], 
 					'p2_l':[0,150,100], 'p2_u':[25,200,255],
-					't1_l':[],'t1_u':[]}
+					't1_l':[0, 65, 128],'t1_u':[15, 185, 255]}
 		
 	def static_board_coords(self, row, column):
 		#pull in current coords
