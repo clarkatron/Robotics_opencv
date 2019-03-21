@@ -10,16 +10,32 @@ class Robot_Track(object):
 
     def __init__(self, camera_index):
         self.cap = cv2.VideoCapture(camera_index)
-        self.board_layout = None
+        self.board_layout = {
+                (0,0) : (0,0),
+                (1,0) : (100, 0),
+                (1,1) : (100, 100),
+                (1,2) : (100, 200),
+                (2,0) : (200, 0),
+                (2,1) : (200, 100),
+                (2,2) : (200, 200),
+                (2,3) : (200, 300),
+                (2,4) : (200, 400),
+                (3,0) : (300, 0),
+                (3,1) : (300, 100),
+                (3,2) : (300, 200),
+                (3,3) : (300, 300),
+                (3,4) : (300, 400),
+                (3,5) : (300, 500),
+                (3,6) : (300, 600)
+                }
+
         robots = {'p1_l':[50,70,100], 'p1_u':[100,255,255], 
 					'p2_l':[0,150,100], 'p2_u':[25,200,255],
 					't1_l':[],'t1_u':[]}
 		
 	def static_board_coords(self, row, column):
 		#pull in current coords
-		board_x, board_y = board_layout[row, column]
-		#send back out x y values from the dict of the triangle it is heading to. 
-		return board_x, board_y
+		return board_layout[(row, column)]
             
 	def get_location(self, name):
 		#read in current contours 
@@ -84,17 +100,15 @@ class Robot_Track(object):
 				self.send_message(name, ip, angle, distance)
 				good = int(input("is he in the right spot? (1/0)  "))
 			return
-		is_connected = connect_robot(name, ip)
-		if is_connected:
-			r1_row, r1_col =  get_location(name)
-			dest_row, dest_col = static_board_coords(row, col)
-			angle  = degrees(atan2((dest_col - r1_col), (dest_row - r1_row)))
-			distance = sqrt((dest_row - r1_row)**2 + (dest_col - r1_col)**2)
-			send_message(name, ip, angle, distance)
-		#get contour and centroid for dest
-		#calculate angle and distance for robot move
-					
-		#send_message(name, ip, angle, distance)
+                #get contour and centroid for dest
+		r1_row, r1_col =  get_location(name)
+		dest_row, dest_col = static_board_coords(row, col)
+		
+                #calculate angle and distance for robot move
+		angle  = degrees(atan2((dest_col - r1_col), (dest_row - r1_row)))
+		distance = sqrt((dest_row - r1_row)**2 + (dest_col - r1_col)**2)
+		# send the message
+                send_message(name, ip, angle, distance)
 
 	def send_message(self, name, ip, angle, distance):
 		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
