@@ -18,6 +18,7 @@ class Robot_Track(object):
 
     def current_board(self):
         #get image data for current game board
+        #this function may be obsolete if other options work
         for i in range (0, 9):
             ret, frame = cap.read()
             gray_vid = cv2.cvtColor(frame, cv2.IMREAD_GRAYSCALE)
@@ -57,16 +58,52 @@ class Robot_Track(object):
         if robot == 'p1':
 			hsv_l = robot['p1_l']
 			hsv_u = robot['p1_u']
+			
 		else if robot == 'p2'
 			hsv_l = robot['p2_l']
 			hsv_u = robot['p2_u']
 		else
 			hsv_l = robot['t_l']
 			hsv_u = robot['t_u']
+			
+		x, y = get_blob(hsv_l, hsv_u)
+		
 		#get location of the blob of this color and then do the 
+		
 		#distance equation. 
         #return row and column of robot
+        
+	def get_blob(hsv_low, hsv_upper):
+		circles = []
+		while circles is None:
+			ret, frame = cap.read()
+			#gray_vid = cv2.cvtColor(img, cv2.IMREAD_GRAYSCALE)
+			#hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+			hsv_vid = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+			kernel = np.ones((5,5), np.uint8)
 
+			hsv_vid = cv2.morphologyEx(hsv_vid, cv2.MORPH_OPEN, kernel)
+			#edged_frame = cv2.Canny(gray_vid, 150, 200, 5)
+			lower_red = hsv_lower
+			upper_red = hsv_upper
+			mask = cv2.inRange(hsv_vid, lower_red, upper_red)
+			mask = cv2.erode(mask, kernel)
+			mask = cv2.dilate(mask, kernel)
+			#res = cv2.bitwise_and(edged_frame, edged_frame, mask = mask)
+			gray = cv2.GaussianBlur(mask,(5,5),0)
+			gray = cv2.medianBlur(gray, 5)
+
+			rows = gray.shape[0]
+			circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1, rows/8,
+							param1=100, param2=20, minRadius=10, maxRadius=40)
+			
+		circles = np.uint16(np.around(circles))
+		for i in circles[0, :]:
+			center = (i[0], i[1])
+			x = i[0]
+			y = i[1]
+		
+		
     def move_robot(self, name, ip, row, col):
         if(not_using_opencv):
             good = 0
