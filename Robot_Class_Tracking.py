@@ -3,6 +3,7 @@ import numpy as np
 import argparse
 import imutils
 import socket
+import math
 
 not_using_opencv = False
 no_robots = True
@@ -35,50 +36,56 @@ class Robot_Track(object):
                 (3,6) : (575, 433)
                 }
 
-        self.robots = { p1_l : np.array([50,70,100]),
-                        p1_u : np.array([100,255,255]), 
-                        p2_l : np.array([0,150,100]),
-                        p2_u : np.array([25,200,255]),
-                        t1_l : np.array([0, 37, 179]),
-                        t1_u : np.array([20, 78, 255])
-                        }
         
     def static_board_coords(self, row, column):
         #pull in current coords
-        return board_layout[(row, column)]
+        return self.board_layout[(row, column)]
             
     def get_location(self, name):
         #read in current contours 
         robot = name
+        print(name)
     #get the HSV values for the robot based on name.
         if robot == 'p1':
-            hsv_l = self.robots[p1_l]
-            hsv_u = self.robots[p1_u]
+            hsv_l = np.array([44, 52, 101])
+            hsv_u = np.array([69, 255, 255])
             
         elif robot == 'p2':
-            hsv_l = self.robots[p2_l]
-            hsv_u = self.robots[p2_u]
+            hsv_l = np.array([0, 125, 123])
+            hsv_u = np.array([32, 255, 255])
+        
         else:
-            hsv_l = self.robots[t1_l]
-            hsv_u = self.robots[t1_u]
+            hsv_l = np.array([0, 49, 167])
+            hsv_u = np.array([11, 105, 255])
             
-        x, y = self.get_blob(hsv_l, hsv_u)
+        x, y = self.get_blob(name)
         return x, y
         
-    def get_blob(self, hsv_low, hsv_upper):
+    def get_blob(self, robot):
         circles = []
         count = 0
-        while (count < 10):
+        while (1):
             ret, frame = self.cap.read()
             #gray_vid = cv2.cvtColor(img, cv2.IMREAD_GRAYSCALE)
             #hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
             hsv_vid = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
             kernel = np.ones((5,5), np.uint8)
-
+            if robot == 'p1':
+                lower_red = np.array([44, 52, 101])
+                upper_red  = np.array([69, 255, 255])
+                
+            elif robot == 'p2':
+                lower_red = np.array([0, 125, 123])
+                upper_red = np.array([32, 255, 255])
+            
+            else:
+                lower_red = np.array([0, 49, 167])
+                upper_red = np.array([11, 105, 255])
+     
             hsv_vid = cv2.morphologyEx(hsv_vid, cv2.MORPH_OPEN, kernel)
             #edged_frame = cv2.Canny(gray_vid, 150, 200, 5)
-            lower_red = hsv_low
-            upper_red = hsv_upper
+            #lower_red = hsv_low
+            #upper_red = hsv_upper
             mask = cv2.inRange(hsv_vid, lower_red, upper_red)
             mask = cv2.erode(mask, kernel)
             mask = cv2.dilate(mask, kernel)
@@ -88,15 +95,15 @@ class Robot_Track(object):
 
             rows = gray.shape[0]
             circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1, rows/8,param1=100, param2=20, minRadius=10, maxRadius=40)
-            count = count + 1
+            if circles is not None:
+                break
         if circles is not None:    
             circles = np.uint16(np.around(circles))
             for i in circles[0, :]:
                 center = (i[0], i[1])
                 x = i[0]
                 y = i[1]
-                if x:
-                    return x, y
+                return x, y
 
     def move_robot(self, name, ip, row, col):
         if(not_using_opencv):
@@ -115,9 +122,10 @@ class Robot_Track(object):
         dest_row, dest_col = self.static_board_coords(row, col)
         
                 #calculate angle and distance for robot move
-        angle  = degrees(atan2((dest_col - r1_col), (dest_row - r1_row)))
-        distance = sqrt((dest_row - r1_row)**2 + (dest_col - r1_col)**2)
+        angle  = math.degrees(math.atan2((dest_col - r1_col), (dest_row - r1_row)))
+        distance = math.sqrt((dest_row - r1_row)**2 + (dest_col - r1_col)**2)
         # send the message
+        print("robot " + name + "to get to location (" + str(row) + "," + str(col) +")")
         self.send_message(name, ip, angle, distance)
 
     def send_message(self, name, ip, angle, distance):
