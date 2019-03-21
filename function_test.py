@@ -5,8 +5,9 @@ import imutils
 
 cap = cv2.VideoCapture(1)
 circles = []
+count = 0
 
-while circles is None:
+while (count < 10):
 	ret, frame = cap.read()
 	#gray_vid = cv2.cvtColor(img, cv2.IMREAD_GRAYSCALE)
 	#hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -25,13 +26,14 @@ while circles is None:
 	gray = cv2.medianBlur(gray, 5)
 	
 	rows = gray.shape[0]
-	circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1, rows/8,
-								param1=100, param2=20, minRadius=10, maxRadius=40)		
+	circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1, rows/8,param1=100, param2=20, minRadius=10, maxRadius=40)	
+	count = count +1	
+
 if circles is not None:
 	circles = np.uint16(np.around(circles))
 	for i in circles[0, :]:
 		center = (i[0], i[1])
-		print('x: ' + i[0] + ' y: ' + i[1])
+		print('x: ' + str(i[0]) + ' y: ' + str(i[1]))
 		# circle center
 		cv2.circle(mask, center, 1, (0, 100, 100), 3)
 		# circle outline
