@@ -14,8 +14,8 @@ while(1):
 
 	hsv_vid = cv2.morphologyEx(hsv_vid, cv2.MORPH_OPEN, kernel)
 	#edged_frame = cv2.Canny(gray_vid, 150, 200, 5)
-	lower_red = np.array([0,150,100])
-	upper_red = np.array([25,200,255])
+	lower_red = np.array([0,0,0])
+	upper_red = np.array([50,100,50])
 	mask = cv2.inRange(hsv_vid, lower_red, upper_red)
 	mask = cv2.erode(mask, kernel)
 	mask = cv2.dilate(mask, kernel)

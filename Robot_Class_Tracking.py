@@ -11,6 +11,10 @@ class Robot_Track(object):
     def __init__(self, camera_index):
         self.cap = cv2.VideoCapture(camera_index)
         self.board_layout = None
+        robots = {'p1_l':[50,70,100], 'p1_u':[100,255,255], 
+					'p2_l':[0,150,100], 'p2_u':[25,200,255],
+					't1_l':[],'t1_u':[]}
+		
 
     def current_board(self):
         #get image data for current game board
@@ -48,8 +52,19 @@ class Robot_Track(object):
             
     def get_location(self, name):
         #read in current contours 
-        #get contours for robot
         robot = name
+        #get the HSV values for the robot based on name.
+        if robot == 'p1':
+			hsv_l = robot['p1_l']
+			hsv_u = robot['p1_u']
+		else if robot == 'p2'
+			hsv_l = robot['p2_l']
+			hsv_u = robot['p2_u']
+		else
+			hsv_l = robot['t_l']
+			hsv_u = robot['t_u']
+		#get location of the blob of this color and then do the 
+		#distance equation. 
         #return row and column of robot
 
     def move_robot(self, name, ip, row, col):
@@ -83,10 +98,5 @@ class Robot_Track(object):
 
         data = sock.recv(3)
         sock.close()
-            
-    def connect_robot(self, name, ip):
-        print("IM CONNECTING A ROBOT")
-        #connect
-        #return true if connection works
 	
 	

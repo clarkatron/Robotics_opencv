@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import argparse
 import imutils
+import math
 
 
 cap = cv2.VideoCapture(1)
@@ -24,11 +25,17 @@ while(1):
 	
 	for cnt in contours:
 		approx = cv2.approxPolyDP(cnt, 0.04*cv2.arcLength(cnt, True), True)
+		
 		M = cv2.moments(cnt)
-		print(cnt)
+		#print(cnt)
 		if M["m00"] != 0:
 			cX = int(M["m10"] / M["m00"])
 			cY = int(M["m01"] / M["m00"])
+			
+			perimeter = cv2.arcLength(cnt, True)
+			area = cv2.contourArea(cnt)
+			circularity = 4*math.pi*(area/(perimeter*perimeter))
+			print(circularity)
 			
 			if len(approx) != 3 & len(approx) != 4 & len(approx) != 5:
 				#if cnt == 0:
