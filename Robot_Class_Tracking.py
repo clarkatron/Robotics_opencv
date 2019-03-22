@@ -5,8 +5,8 @@ import imutils
 import socket
 import math
 
-not_using_opencv = False
-no_robots = True
+not_using_opencv = True
+no_robots = False
 p1_l = 1
 p1_u = 2
 p2_l = 3
@@ -18,22 +18,22 @@ class Robot_Track(object):
     def __init__(self, camera_index):
         self.cap = cv2.VideoCapture(camera_index)
         self.board_layout = {
-                (0,0) : (353, 67),
-                (1,0) : (279, 205),
-                (1,1) : (358, 169),
-                (1,2) : (440, 195),
-                (2,0) : (223, 339),
-                (2,1) : (292, 312),
-                (2,2) : (369, 337),
-                (2,3) : (442, 299),
-                (2,4) : (512, 330),
-                (3,0) : (172, 449),
-                (3,1) : (241, 422),
-                (3,2) : (305, 444),
-                (3,3) : (375, 423),
-                (3,4) : (441, 439),
-                (3,5) : (504, 409),
-                (3,6) : (575, 433)
+                (0,0) : (444, 82),
+                (1,0) : (351, 263),
+                (1,1) : (452, 208),
+                (1,2) : (558, 249),
+                (2,0) : (286, 421),
+                (2,1) : (365, 385),
+                (2,2) : (467, 418),
+                (2,3) : (557, 371),
+                (2,4) : (653, 407),
+                (3,0) : (231, 550),
+                (3,1) : (306, 531),
+                (3,2) : (385, 558),
+                (3,3) : (469, 521),
+                (3,4) : (559, 549),
+                (3,5) : (640, 513),
+                (3,6) : (710, 539)
                 }
 
         
@@ -65,22 +65,23 @@ class Robot_Track(object):
         circles = []
         count = 0
         while (1):
+            print("get_blob iter")
             ret, frame = self.cap.read()
             #gray_vid = cv2.cvtColor(img, cv2.IMREAD_GRAYSCALE)
             #hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
             hsv_vid = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
             kernel = np.ones((5,5), np.uint8)
             if robot == 'p1':
-                lower_red = np.array([44, 52, 101])
-                upper_red  = np.array([69, 255, 255])
+                lower_red = np.array([0, 128, 123])
+                upper_red = np.array([19, 255, 255])
                 
             elif robot == 'p2':
-                lower_red = np.array([0, 125, 123])
-                upper_red = np.array([32, 255, 255])
+                lower_red = np.array([44, 52, 101])
+                upper_red  = np.array([69, 255, 255])
             
             else:
                 lower_red = np.array([0, 49, 167])
-                upper_red = np.array([11, 105, 255])
+                upper_red = np.array([11, 255, 255])
      
             hsv_vid = cv2.morphologyEx(hsv_vid, cv2.MORPH_OPEN, kernel)
             #edged_frame = cv2.Canny(gray_vid, 150, 200, 5)
@@ -122,17 +123,34 @@ class Robot_Track(object):
         dest_row, dest_col = self.static_board_coords(row, col)
         
                 #calculate angle and distance for robot move
-        angle  = math.degrees(math.atan2((dest_col - r1_col), (dest_row - r1_row)))
-        distance = math.sqrt((dest_row - r1_row)**2 + (dest_col - r1_col)**2)
+        print("dst col: " + str(dest_col) + " dst row: " + str(dest_row))
+        print("r1 col: " + str(r1_col) + " r1 row: " + str(r1_row))
+        angle  = math.degrees(math.atan2((dest_row - r1_row), (r1_col - dest_col)))
+        distance = math.sqrt((dest_row - r1_row)**2 + (r1_col - dest_col)**2)
         # send the message
         print("robot " + name + "to get to location (" + str(row) + "," + str(col) +")")
         self.send_message(name, ip, angle, distance)
 
     def send_message(self, name, ip, angle, distance):
+
+        angle = int(angle)
+        if(angle < 0):
+            angle = angle + 360
+
+        if(name == "t"):
+            distance = int(distance)
+
+        elif(name == "p1"):
+            distance = distance
+
+        else:
+            distance = distance
+        
         if(no_robots):
             print("sending robot: " + str(name) + " dist: " + str(distance) + " angle: " + str(angle))
             return
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        print("sending robot: " + str(name) + " dist: " + str(distance) + " angle: " + str(angle))
 
         server_address = (ip, 65432)
         sock.connect(server_address)
